@@ -103,26 +103,63 @@ export function SubscriptionProvider({ children }: { children: React.ReactNode }
     setIsPaidLimitExceeded(diffDays > limitDays);
   }, []);
 
-  const calculateTrial = useCallback(() => {
-    let installDateStr = localStorage.getItem('magicmart_install_date');
-    if (!installDateStr) {
-      installDateStr = new Date().toISOString();
-      localStorage.setItem('magicmart_install_date', installDateStr);
+  const calculateTrial = useCallback(async () => {
+    let currentDeviceId = 'browser';
+    try {
+      const info = await Device.getId();
+      currentDeviceId = info.identifier;
+    } catch (e) {
+      console.warn('[Subscription] Could not get device ID for trial:', e);
     }
-    const installDate = new Date(installDateStr);
-    if (isNaN(installDate.getTime())) {
+
+    // Try to get from Supabase first (Persistent across reinstalls)
+    let startDate: Date;
+    const { data: deviceData } = await supabase
+      .from('device_trials' as any)
+      .select('trial_start_date')
+      .eq('device_id', currentDeviceId)
+      .maybeSingle();
+
+    if (deviceData?.trial_start_date) {
+      startDate = new Date(deviceData.trial_start_date);
+    } else {
+      // Not in DB, check local storage (fallback/offline)
+      let localInstallDate = localStorage.getItem('magicmart_install_date');
+      if (localInstallDate) {
+        startDate = new Date(localInstallDate);
+        // Sync local date to DB so it becomes persistent
+        supabase.from('device_trials' as any)
+          .upsert({ device_id: currentDeviceId, trial_start_date: localInstallDate })
+          .then(({ error }) => {
+            if (error) console.error('[Subscription] Error syncing local trial to DB:', error);
+          });
+      } else {
+        // New install
+        startDate = new Date();
+        const isoDate = startDate.toISOString();
+        localStorage.setItem('magicmart_install_date', isoDate);
+
+        // Try to persist to DB asynchronously
+        supabase.from('device_trials' as any)
+          .insert({ device_id: currentDeviceId, trial_start_date: isoDate })
+          .then(({ error }) => {
+            if (error) console.error('[Subscription] Error persisting device trial:', error);
+          });
+      }
+    }
+
+    if (isNaN(startDate.getTime())) {
       setTrialDaysRemaining(0);
       setIsTrial(false);
       return { remaining: 0, inTrial: false };
     }
+
     const now = new Date();
-    const diffMs = now.getTime() - installDate.getTime();
+    const diffMs = now.getTime() - startDate.getTime();
     const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
     let remaining = Math.max(0, 14 - diffDays);
     
-    // Explicitly check for invalid numbers or corrupted dates
     if (isNaN(remaining)) {
-      console.warn('[Subscription] Invalid trial date calculation, defaulting to expired');
       remaining = 0;
     }
     
@@ -133,11 +170,23 @@ export function SubscriptionProvider({ children }: { children: React.ReactNode }
     return { remaining, inTrial };
   }, []);
 
-  const simulateTrialExpiry = useCallback(() => {
+  const simulateTrialExpiry = useCallback(async () => {
     const expiredDate = new Date();
     expiredDate.setDate(expiredDate.getDate() - 15);
-    localStorage.setItem('magicmart_install_date', expiredDate.toISOString());
-    calculateTrial();
+    const isoDate = expiredDate.toISOString();
+
+    localStorage.setItem('magicmart_install_date', isoDate);
+
+    let currentDeviceId = 'browser';
+    try {
+      const info = await Device.getId();
+      currentDeviceId = info.identifier;
+    } catch (e) {}
+
+    await supabase.from('device_trials' as any)
+      .upsert({ device_id: currentDeviceId, trial_start_date: isoDate });
+
+    await calculateTrial();
     toast.success('Simulando fim do Trial (Expirado)');
     setTimeout(() => {
       window.location.reload();
