@@ -27,7 +27,7 @@ export function AppMenu({ open, onClose, initialSubMenu, onNavigate }: AppMenuPr
   const { theme, setTheme, largeText, setLargeText } = useTheme();
   const { lang, setLang, t } = useLanguage();
   const { stockExpiryDays, setStockExpiryDays } = usePreferences();
-  const { info, openPortal, restorePurchases, openCheckout, isPaidLimitExceeded } = useSubscription();
+  const { info, openPortal, restorePurchases, openCheckout, isPaidLimitExceeded, trialDaysRemaining, isTrial } = useSubscription();
   const { devMode, setDevMode } = useDevMode();
   const { signOut } = useAuth();
   const [subMenu, setSubMenu] = useState<SubMenu>(null);
@@ -442,9 +442,38 @@ export function AppMenu({ open, onClose, initialSubMenu, onNavigate }: AppMenuPr
 
                 {/* User info at the top */}
                 {!subMenu && info && (
-                  <div className="mb-4 p-3 rounded-xl bg-card border border-border">
-                    <p className="text-sm font-bold text-foreground">{info.display_name}</p>
-                    <p className="text-xs text-muted-foreground">{info.email}</p>
+                  <div className="mb-4">
+                    <div className="p-3 rounded-xl bg-card border border-border">
+                      <p className="text-sm font-bold text-foreground">{info.display_name}</p>
+                      <p className="text-xs text-muted-foreground">{info.email}</p>
+                    </div>
+
+                    {/* Subscription Status Box */}
+                    <div className={`mt-2 p-2.5 rounded-xl border flex items-center gap-3 ${
+                      info.stripe_status === 'active'
+                        ? 'bg-green-50 border-green-600/30'
+                        : 'bg-yellow-50 border-amber-500/30'
+                    }`}>
+                      <div className={`p-1.5 rounded-lg ${
+                        info.stripe_status === 'active' ? 'bg-green-100' : 'bg-amber-100'
+                      }`}>
+                        <CheckCircle2 className={`w-4 h-4 ${
+                          info.stripe_status === 'active' ? 'text-green-600' : 'text-amber-600'
+                        }`} />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className={`text-[10px] font-bold uppercase tracking-wider ${
+                          info.stripe_status === 'active' ? 'text-green-700' : 'text-amber-700'
+                        }`}>
+                          {info.stripe_status === 'active' ? t('subscriptionValid') : t('trialPeriod')}
+                        </p>
+                        <p className="text-[11px] font-medium text-foreground/70">
+                          {info.stripe_status === 'active'
+                            ? t('premiumTitle')
+                            : `${trialDaysRemaining} ${t('remainingDays')}`}
+                        </p>
+                      </div>
+                    </div>
                   </div>
                 )}
 
