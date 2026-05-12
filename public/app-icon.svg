@@ -1,0 +1,22 @@
+<svg width="512" height="512" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Teal Background with Rounded Corners -->
+  <rect width="512" height="512" rx="40" fill="#0198B5"/>
+  
+  <!-- Basket Handles -->
+  <path d="M140 100L180 180M372 100L332 180" stroke="#A7D149" stroke-width="40" stroke-linecap="round"/>
+  
+  <!-- Basket Top Rim -->
+  <rect x="100" y="180" width="312" height="50" rx="10" fill="white" stroke="#A7D149" stroke-width="12"/>
+  
+  <!-- Basket Body -->
+  <path d="M130 230L170 450H342L382 230H130Z" fill="white" stroke="#A7D149" stroke-width="12"/>
+  
+  <!-- Pulse Circle -->
+  <circle cx="256" cy="320" r="80" fill="#0198B5"/>
+  
+  <!-- Pulse Line -->
+  <path d="M190 320H230L245 280L265 360L280 320H320" stroke="white" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
+  
+  <!-- Stylized Lines on Basket -->
+  <path d="M130 230L170 450M382 230L342 450M200 230L220 450M312 230L292 450" stroke="#A7D149" stroke-width="4"/>
+</svg>

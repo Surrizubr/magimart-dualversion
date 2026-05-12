@@ -1,0 +1,6 @@
+{
+  "name": "Magicmart-AI",
+  "description": "Seu assistente inteligente de compras e economia.",
+  "requestFramePermissions": ["camera", "geolocation"],
+  "majorCapabilities": []
+}

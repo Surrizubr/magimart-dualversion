@@ -1,0 +1,27 @@
+{
+  "name": "Magic Mart AI",
+  "short_name": "Magic Mart",
+  "description": "Seu assistente inteligente de compras",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f5f7f5",
+  "theme_color": "#2d9d6a",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "/app-icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    },
+    {
+      "src": "/app-icon.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/app-icon.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

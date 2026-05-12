@@ -1,0 +1,8 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">MagicMart</string>
+    <string name="title_activity_main">MagicMart</string>
+    <string name="package_name">com.magicmart.app</string>
+    <string name="custom_url_scheme">com.magicmart.app</string>
+    <string name="server_client_id">759814822066-n501ukfn1tdntkev59284n64djsu6mj9.apps.googleusercontent.com</string>
+</resources>
